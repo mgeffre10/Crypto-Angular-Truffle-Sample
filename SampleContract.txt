@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract Storage {
+
+    struct Member {
+        uint id;
+        uint age;
+        string firstName;
+    }
+
+    string[] familyNames;
+    mapping(string => Member[]) families;
+
+    function getFamilies() view external returns(string[] memory) {
+        return familyNames;
+    }
+
+    function getMembers(string memory familyName) view external returns(Member[] memory) {
+        return families[familyName];
+    }
+
+    function createFamily(string memory familyName, Member[] memory members) external {
+        familyNames.push(familyName);
+
+        for(uint i = 0; i < members.length; i++) {
+            Member memory member = Member({
+                id: members[i].id,
+                age: members[i].age,
+                firstName: members[i].firstName
+            });
+
+            families[familyName].push(member);
+        }
+    }
+
+    function addMember(string memory familyName, Member memory member) external {
+        families[familyName].push(member);
+    }
+
+    function removeMember(string memory familyName, uint memberId) external {
+        Member[] memory members = families[familyName];
+        for (uint i = 0; i < members.length; i++) {
+            Member memory member = members[i];
+
+            if (member.id == memberId) {
+                families[familyName][i] = families[familyName][families[familyName].length - 1];
+                families[familyName].pop();
+                break;
+            }
+        }
+    }
+
+    function updateMember(string memory familyName, Member memory member) external {
+        Member[] memory members = families[familyName];
+
+        for (uint i = 0; i < members.length; i++) {
+            Member memory oldMember = members[i];
+
+            if (member.id == oldMember.id) {
+                families[familyName][i] = member;
+                break;
+            }
+        }
+    }
+}
